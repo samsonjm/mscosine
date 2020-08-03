@@ -1,0 +1,94 @@
+/* Calculates a cosine score.
+ *
+ * Author: Jonathan Samson
+ */
+
+/*
+ *  similarity = (SUM{AiBi})/(sqrt(SUM{A^2})sqrt(SUM{B^@}))
+ */
+import std.math;
+
+private real find_numerator(real[] a, real[] b)
+/* Calculates the numerator for the cosine value.
+ * Arguments:
+ *	a - The first vector to be compared.
+ *	b - The second vector to be compared.
+ * Returns:
+ *	sum - The overall sum of AiBi.
+ */
+{
+	real sum = 0.0;
+	for(int i = 0; i < a.length; ++i)
+	{
+		sum += (a[i] * b[i]);	
+	}
+	return sum;
+}
+unittest
+{
+	real[] a = [1, 1, 1, 1];
+	real[] b = [1, 1, 1, 1];
+	assert(find_numerator(a, b) == 4);
+}
+
+private real find_denominator(real[] a, real[] b)
+/* Calculates the denominator for the cosine value.
+ * Arguments:
+ *	a - The first vector to be compared.
+ *	b - The second vector to be compared.
+ * Returns:
+ *	product - The overall denominator of the consine value.
+ */
+{
+	real sum_a = 0.0;
+	real sum_b = 0.0;
+	foreach(value; a)
+	{
+		sum_a += value ^^ 2;
+	}
+	foreach(value; b)
+	{
+		sum_b += value ^^ 2;
+	}
+	real product = sqrt(sum_a) * sqrt(sum_b);
+	return product; 
+}
+unittest
+{
+	real[] a = [3, -4];
+	real[] b = [5, 12];
+	assert(find_denominator(a, b) == 65);
+}
+
+real calculate_cosine_score(real[] a, real[] b)
+/* Calculates the cosine score between the two arrays.
+ * Arguments:
+ *	a - The first vector to be compared.
+ *	b - The second vector to be compared.
+ * Returns:
+ *	cosine - The cosine score between a and b.
+ */
+{
+	real cosine = find_numerator(a, b) / find_denominator(a, b);
+	return cosine;
+}
+unittest
+{
+	real[] a = [3, -4];
+	real[] b = [3, -4];
+	assert(calculate_cosine_score(a, b) == 1);
+
+	b = [-3, 4];
+	assert(calculate_cosine_score(a, b) == -1);
+	
+	b = [4, 3];
+	assert(calculate_cosine_score(a, b) == 0);
+
+	assert(calculate_cosine_score(a, b) == 
+	       calculate_cosine_score(b, a));
+}
+
+void main()
+{
+	return;
+}
