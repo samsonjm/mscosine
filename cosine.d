@@ -7,6 +7,7 @@
  *  similarity = (SUM{AiBi})/(sqrt(SUM{A^2})sqrt(SUM{B^@}))
  */
 import std.math;
+import std.exception;
 
 private real find_numerator(real[] a, real[] b)
 /* Calculates the numerator for the cosine value.
@@ -61,7 +62,7 @@ unittest
 }
 
 real calculate_cosine_score(real[] a, real[] b)
-/* Calculates the cosine score between the two arrays.
+/* Calculates the cosine score between the two arrays of equal length.
  * Arguments:
  *	a - The first vector to be compared.
  *	b - The second vector to be compared.
@@ -69,6 +70,7 @@ real calculate_cosine_score(real[] a, real[] b)
  *	cosine - The cosine score between a and b.
  */
 {
+	enforce(a.length == b.length, "The arrays must be of equal length.");
 	real cosine = find_numerator(a, b) / find_denominator(a, b);
 	return cosine;
 }
@@ -86,6 +88,9 @@ unittest
 
 	assert(calculate_cosine_score(a, b) == 
 	       calculate_cosine_score(b, a));
+
+	b = [1, 2, 3];
+	assertThrown(calculate_cosine_score(a, b));
 }
 
 void main()
