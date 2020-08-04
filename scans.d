@@ -125,6 +125,7 @@ class MS2Scan : Scan
 unittest
 {
 	Scan parent = new Scan;
+	Scan notparent = new Scan;
 	MS2Scan test = new MS2Scan;
 	real[real] peaks = [
 		51.46782684: 1460.6981201172,
@@ -154,4 +155,7 @@ unittest
 	assert(test.get_parent_rt() == 600.01);
 	test.set_parent_peak(244.1736908);
 	assert(test.get_parent_peak() == 244.1736908);
+	test.set_parent_scan(parent);
+	assert(test.get_parent_scan() == parent);
+	assert(test.get_parent_scan() != notparent);
 }
