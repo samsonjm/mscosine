@@ -1,11 +1,9 @@
-/* Calculates a cosine score.
+/* Calculates a cosine score between two arrays of equal length.
  *
  * Author: Jonathan Samson
+ * Date: 03 August 2020
  */
-
-/*
- *  similarity = (SUM{AiBi})/(sqrt(SUM{A^2})sqrt(SUM{B^@}))
- */
+module cosine;
 import std.math;
 import std.exception;
 
