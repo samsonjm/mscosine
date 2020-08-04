@@ -54,13 +54,36 @@ real[real][2] create_vectors(
  * threshold comparison will be made to the smallest peak.
  */
 {
-	real[] peak_list = combine_peak_lists([1, 2, 3], [4, 5, 6]);
-	//auto[real[real]] first_vector;
-	//auto[real[real]] second_vector;
+	real[] first_peaks = first_scan.keys();
+	real[] second_peaks = second_scan.keys();
+	real[] peak_list = combine_peak_lists(first_peaks, second_peaks);
 
-	//vectors = [first_vector, second_vector];
-	real[real][2] vectors;
-	//return vectors;
+	real[real] first_vector;
+	real[real] second_vector;
+	sort(first_peaks);
+	sort(second_peaks);
+	real[] to_pop;
+	while(peak_list.length > 0)
+	{
+		while(first_peaks.length > 0 && 
+		      peak_list[0] + threshold >= first_peaks[0])
+		{
+			to_pop ~= first_peaks[0];
+			first_vector[peak_list[0]] = first_scan[first_peaks[0]];
+			first_peaks = first_peaks[1..$];
+		}
+		while(second_peaks.length > 0 &&
+		      peak_list[0] + threshold >= second_peaks[0])
+		{
+			to_pop ~= second_peaks[0];
+			second_vector[peak_list[0]] = second_scan[second_peaks[0]];
+			second_peaks = second_peaks[1..$];
+		}
+		to_pop.length -= to_pop.uniq().copy(to_pop).length;
+		peak_list = peak_list[(to_pop.length)..$];
+		to_pop = [];
+	}
+	real[real][2] vectors = [first_vector, second_vector];
 	return vectors;
 }
 unittest
