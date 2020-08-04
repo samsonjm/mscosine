@@ -39,7 +39,7 @@ class Scan
 	}
 
 	real get_peak_intensity(real my_peak)
-	/* Gives the peak intensity of the set peak in thescan.
+	/* Gives the peak intensity of the set peak in the scan.
 	 * Arguments:
 	 *	my_peak - The peak of interest.
 	 * Returns:
@@ -50,21 +50,38 @@ class Scan
 	}
 
 	void set_rt(real time)
+	/* Sets the retention time for the scan.
+	 * Arguments:
+	 *	time - The new retention time of the scan.
+	 */
 	{
 		retention_time = time;
 	}
 
 	void set_level(uint my_level)
+	/* Sets the MS level for the scan.
+	 * Arguments:
+	 *	my_level - The new MS level of the scan.
+	 */
 	{
 		level = my_level;
 	}
 
 	void set_peaks(real[real] my_peaks)
+	/* Sets the peak list for the scan.
+	 * Arguments:
+	 *	my_peaks - The mz:intensity list of peaks in the scan.
+	 */
 	{
 		peaks = my_peaks;
 	}
 
 	void add_peak(real mz, real intensity)
+	/* Adds a peak to the scan.
+	 * Arguments:
+	 *	mz - the mass to charge ratio of the new peak.
+	 *	intensity - the intensity of the new peak.
+	 */
 	{
 		peaks[mz] = intensity;
 	}
@@ -110,11 +127,19 @@ class MS2Scan : Scan
 	}
 
 	void set_parent_scan(Scan my_parent)
+	/* Sets the parent scan for this scan.
+	 * Arguments:
+	 *	my_parent - The parent scan to set.
+	 */
 	{
 		parent_scan = my_parent;
 	}
 
 	void set_parent_peak(real peak) 
+	/* Sets the parent peak that this scan was based on.
+	 * Arguments:
+	 *	peak - The parent peak.
+	 */
 	{
 		parent_peak = peak;
 	}
