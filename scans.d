@@ -7,15 +7,34 @@ module scans;
 
 class Scan
 {
-	ureal retention_time;
-	ureal[ureal] peaks;
+	real retention_time;
+	real[real] peaks;
 	uint level;
+
+	uint get_level()
+	{
+		return level;
+	}
+
+	real get_rt()
+	{
+		return retention_time;
+	}
+
+	real[real] get_peaks()
+	{
+		return peaks;
+	}
 }
 
 class MS2Scan : Scan
 {
-	level = 2;
-	*Scan parent_scan;
-	ureal parent_peak;
-	ureal parent_retention_time;
+	Scan *parent_scan;
+	real parent_peak;
+	real parent_retention_time;
+
+	this()
+	{
+		level = 2;
+	}
 }
