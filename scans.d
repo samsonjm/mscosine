@@ -25,6 +25,58 @@ class Scan
 	{
 		return peaks;
 	}
+
+	real get_peak_intensity(real my_peak)
+	{
+		return peaks[my_peak];
+	}
+
+	void set_rt(real time)
+	{
+		retention_time = time;
+	}
+
+	void set_level(uint my_level)
+	{
+		level = my_level;
+	}
+
+	void set_peaks(real[real] my_peaks)
+	{
+		peaks = my_peaks;
+	}
+
+	void add_peak(real mz, real intensity)
+	{
+		peaks[mz] = intensity;
+	}
+}
+unittest
+{
+	Scan test = new Scan;
+	real[real] peaks = [
+		51.46782684: 1460.6981201172,
+		75.82749939: 1671.7169189453,
+		75.86730194: 1605.3143310547,
+		100.1144104: 1462.4990234375,
+		101.5387802: 1490.517578125,
+		107.7608643: 1808.1832275391,
+		118.443428: 1619.8599853516,
+		130.0875244: 37516.33203125,
+		146.9610138: 1678.8117675781,
+		171.1526642: 1760.8597412109,
+		199.1815948: 35382.921875,
+		243.1713562: 107272.828125,
+		244.1736908: 8717.1875
+	];
+	test.set_level(1);
+	assert(test.get_level() == 1);
+	test.set_rt(100.110);
+	assert(test.get_rt() == 100.110);
+	test.set_peaks(peaks);
+	assert(test.get_peaks() == peaks);
+	test.add_peak(56.12356, 5235.12359);
+	assert(test.get_peak_intensity(56.12356) == 5235.12359);
 }
 
 class MS2Scan : Scan
