@@ -5,6 +5,7 @@
  */
 import std.algorithm;
 import cosine;
+import scans;
 
 real[] combine_peak_lists(real[] mz1, real[] mz2)
 /* Creates a combined list of peaks from the separate peak lists.
@@ -20,19 +21,20 @@ real[] combine_peak_lists(real[] mz1, real[] mz2)
 	foreach(peak; mz2)
 		peak_list ~= peak;
 	peak_list.sort();
+	peak_list.length -= peak_list.uniq().copy(peak_list).length;
 	return peak_list;
 }
 unittest
 {
 	real[] mz1 = [1, 5, 3];
-	real[] mz2 = [4, 2, -6];
-	assert(generate_peak_list(mz1, mz2) == [-6, 1, 2, 3, 4, 5]);
-	assert(generate_peak_list(mz1, mz2) == generate_peak_list(mz2, mz1));
+	real[] mz2 = [3, 2, -6];
+	assert(combine_peak_lists(mz1, mz2) == [-6, 1, 2, 3, 5]);
+	assert(combine_peak_lists(mz1, mz2) == combine_peak_lists(mz2, mz1));
 }
 
-int[][] create_vectors(
-		int[] first_scan, 
-		int[] second_scan,
+real[real][2] create_vectors(
+		real[real] first_scan, 
+		real[real] second_scan,
 		real threshold = 0.01)
 /* Creates vectors of equal length for each scan.
  *
@@ -57,11 +59,22 @@ int[][] create_vectors(
 	//auto[real[real]] second_vector;
 
 	//vectors = [first_vector, second_vector];
-	int[][] vectors;
+	real[real][2] vectors;
 	//return vectors;
 	return vectors;
 }
 unittest
 {
-
+	real[real] scan1_peaks = [
+		100.1: 10000.100,
+		200.1: 15000.2,
+		300.1: 16000.3
+	];
+	real[real] scan2_peaks = [
+		100.1: 10000.100,
+		200.1: 15000.2,
+		300.1: 16000.3
+	];
+	assert(create_vectors(scan1_peaks, scan2_peaks) == 
+			[scan1_peaks, scan2_peaks]);
 }
