@@ -4,6 +4,7 @@
  * Date: 4 August 2020
  */
 import std.algorithm;
+import cosine;
 
 real[] combine_peak_lists(real[] mz1, real[] mz2)
 /* Creates a combined list of peaks from the separate peak lists.
