@@ -43,10 +43,14 @@ class Scan
 	 * Arguments:
 	 *	my_peak - The peak of interest.
 	 * Returns:
-	 *	this.peaks[my_peak] - This scan's intensity of my_peak.
+	 *	intensity - This scan's intensity of my_peak.
 	 */
 	{
-		return peaks[my_peak];
+		real* peak_intensity = (my_peak in peaks);
+		real intensity = 0;
+		if (peak_intensity !is null)
+			intensity = *peak_intensity;
+		return intensity;
 	}
 
 	void set_rt(real time)
