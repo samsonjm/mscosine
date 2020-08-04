@@ -90,8 +90,3 @@ unittest
 	b = [1, 2, 3];
 	assertThrown(calculate_cosine_score(a, b));
 }
-
-void main()
-{
-	return;
-}
