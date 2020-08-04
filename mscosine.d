@@ -126,16 +126,19 @@ bool not_all_zeroes(real[] list)
  * Arguments:
  *	list - A list of real values.
  * Returns:
- *	true - If at least one value in list is not 0.
- *	false - If all values in list are 0.
+ *	non_zeroes - true only if there is at least 1 non-zero value.
  */
 {
+	bool non_zeroes = false;
 	foreach(real value; list)
 	{
 		if(value != 0)
-			return true;
+		{
+			non_zeroes = true;
+			break;
+		}
 	}
-	return false;
+	return non_zeroes;
 }
 unittest
 {
