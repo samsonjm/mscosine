@@ -10,6 +10,8 @@ import std.exception;
 import std.string;
 import std.conv;
 import scans;
+import std.stdio;
+import std.getopt;
 
 real[] combine_peak_lists(real[] mz1, real[] mz2)
 /* Creates a combined list of peaks from the separate peak lists.
@@ -223,7 +225,58 @@ unittest
 			1490.517578125);
 }
 
+string read_file(string name_of_file)
+/* Reads the file into a string.
+ * Arguments:
+ *      file_stream - The name of the file to read.
+ *
+ * Returns:
+ *      file_contents - The contents of the file.
+ */
+{
+        string file_contents = "";
+        try 
+        {
+                auto file = File(name_of_file, "r");
+                string line;
+                while ((line = file.readln()) !is null)
+                {
+                        file_contents ~= line;
+                }       
+                file.close();
+        }       
+        catch(ErrnoException e)
+        {
+		writeln("Invalid file name");
+        }       
+        return file_contents;
+}       
+
 void main(string[] args)
 {
+	string input_file;
+	int scan_1_index;
+	int scan_2_index;
 
+	auto helpInformation = getopt(
+			args,
+			"input|i", "The input file in .mgl format", &input_file,
+			"scan1|1", "The first scan to compare", &scan_1_index,
+			"scan2|2", "The second scan to compare", &scan_2_index);
+	if(helpInformation.helpWanted)
+	{
+		defaultGetoptFormatter(
+				stdout.lockingTextWriter(),
+				"Finds the cosine score between two scans.",
+				helpInformation.options,
+				"  %*s\t%*s%*s%s\n");
+		return;
+	}
+	string file_contents = read_file(input_file);
+	MS2Scan[] my_scans = mgf_parser(file_contents);
+	real[real] peak_list_1 = my_scans[scan_1_index].get_peaks();
+	real[real] peak_list_2 = my_scans[scan_2_index].get_peaks();
+
+	real cosine_score = find_cosine_score(peak_list_1, peak_list_2);
+	writeln(cosine_score);
 }
