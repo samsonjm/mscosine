@@ -12,21 +12,39 @@ class Scan
 	uint level;
 
 	uint get_level()
+	/* Gives the MS level of the scan.
+	 * Returns:
+	 *	this.level - The scan level.
+	 */
 	{
 		return level;
 	}
 
 	real get_rt()
+	/* Gives the retention time of the scan.
+	 * Returns:
+	 *	this.retention_time - The scan retention time.
+	 */
 	{
 		return retention_time;
 	}
 
 	real[real] get_peaks()
+	/* Gives the peaks of the scan.
+	 * Returns:
+	 *	this.peaks - The scan peaks as an associative array.
+	 */
 	{
 		return peaks;
 	}
 
 	real get_peak_intensity(real my_peak)
+	/* Gives the peak intensity of the set peak in thescan.
+	 * Arguments:
+	 *	my_peak - The peak of interest.
+	 * Returns:
+	 *	this.peaks[my_peak] - This scan's intensity of my_peak.
+	 */
 	{
 		return peaks[my_peak];
 	}
@@ -85,7 +103,6 @@ class MS2Scan : Scan
 {
 	Scan parent_scan;
 	real parent_peak;
-	real parent_retention_time;
 
 	this()
 	{
@@ -102,29 +119,37 @@ class MS2Scan : Scan
 		parent_peak = peak;
 	}
 
-	void set_parent_rt(real rt)
-	{
-		parent_retention_time = rt;
-	}
-
 	Scan get_parent_scan()
+	/* Gives the parent scan of this MS2 scan.
+	 * Returns:
+	 *	this.parent_scan - The parent MS2 scan.
+	 */
 	{
 		return parent_scan;
 	}
 
 	real get_parent_peak()
+	/* Gives the peak from the parent scan that this MS2 refers to.
+	 * Returns:
+	 *	this.parent_peak - The relevant parent peak.
+	 */
 	{
 		return parent_peak;
 	}
 
 	real get_parent_rt()
+	/* Gives the retention time from the parent scan for this MS2.
+	 * Returns:
+	 *	this.parent_scan.get_rt() - The relevant parent rt.
+	 */
 	{
-		return parent_retention_time;
+		return parent_scan.get_rt();
 	}
 }
 unittest
 {
 	Scan parent = new Scan;
+	parent.set_rt(600.100);
 	Scan notparent = new Scan;
 	MS2Scan test = new MS2Scan;
 	real[real] peaks = [
@@ -151,11 +176,10 @@ unittest
 	peaks[56.12356] = 5235.12359;
 	assert(test.get_peak_intensity(56.12356) == 5235.12359);
 	assert(test.get_peaks() == peaks);
-	test.set_parent_rt(600.01);
-	assert(test.get_parent_rt() == 600.01);
 	test.set_parent_peak(244.1736908);
 	assert(test.get_parent_peak() == 244.1736908);
 	test.set_parent_scan(parent);
 	assert(test.get_parent_scan() == parent);
 	assert(test.get_parent_scan() != notparent);
+	assert(test.get_parent_rt() == 600.100);
 }
