@@ -6,7 +6,6 @@
 import std.algorithm;
 import cosine;
 import std.math;
-import std.exception;
 import std.string;
 import std.conv;
 import scans;

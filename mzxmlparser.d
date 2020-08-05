@@ -10,6 +10,8 @@ import std.base64;
 import scans;
 import std.stdio;
 import std.math;
+import std.exception;
+import std.algorithm;
 
 real[real] decode_mzxml_string(
 		string encoded, 
@@ -150,9 +152,9 @@ unittest
 {
 	string scans = read_file("example.mzXML");
 	Scan[] parsed = parse_mzxml(scans);
-	assert(equals(parsed[0].get_rt(), "PT0.457129S"));
-	assert(equals(parsed[0].get_level(), 1));
-	assert(equals(parsed[2].get_rt(), "PT674.132S"));
+	assert(approxEqual(parsed[0].get_rt(), 0.457129.to!real));
+	assert(parsed[0].get_level() == 1);
+	assert(approxEqual(parsed[2].get_rt(), 674.132.to!real));
 	real[real] peaks = [
  		51.4678:        1460.7,
                 75.8275:        1671.72,
@@ -171,6 +173,6 @@ unittest
 	assert(approxEqual(parsed[2].get_peaks().keys.sort, peaks.keys.sort));
 	assert(approxEqual(parsed[2].get_peaks().values.sort,
 			    peaks.values.sort));
-	assert(equals(parsed[2].get_level(), 2));
+	assert(parsed[2].get_level() == 2);
 	assert(approxEqual(parsed[2].get_peak_intensity(171.153), 1760.86));
 }
