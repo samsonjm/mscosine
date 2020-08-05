@@ -1,6 +1,9 @@
 *.o
 cosine
 mscosine
+mzxmlparser
+*.txt
+*.raw
 *.mgf
 *.swp
 scans
