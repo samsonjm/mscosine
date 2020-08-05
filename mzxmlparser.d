@@ -146,6 +146,15 @@ Scan[] parse_mzxml(string contents)
  */
 {
 	Scan[] scans;
+	string[] lines = splitLines(contents);
+	MS2Scan my_scan = new Scan;
+	foreach(string line; lines)
+	{
+		if (line[4..13] == "<scan num=")
+			my_scan = new Scan;
+		else if (line == "    </scan>")
+			scans ~= my_scan;
+	}
 	return scans;
 }
 unittest
