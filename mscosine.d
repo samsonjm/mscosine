@@ -12,6 +12,7 @@ import std.conv;
 import scans;
 import std.stdio;
 import std.getopt;
+import mzxmlparser;
 
 real[] combine_peak_lists(real[] mz1, real[] mz2)
 /* Creates a combined list of peaks from the separate peak lists.
@@ -224,33 +225,6 @@ unittest
 	assert(my_scans[1].get_peak_intensity(101.5387802) != 
 			1490.517578125);
 }
-
-string read_file(string name_of_file)
-/* Reads the file into a string.
- * Arguments:
- *      file_stream - The name of the file to read.
- *
- * Returns:
- *      file_contents - The contents of the file.
- */
-{
-        string file_contents = "";
-        try 
-        {
-                auto file = File(name_of_file, "r");
-                string line;
-                while ((line = file.readln()) !is null)
-                {
-                        file_contents ~= line;
-                }       
-                file.close();
-        }       
-        catch(ErrnoException e)
-        {
-		writeln("Invalid file name");
-        }       
-        return file_contents;
-}       
 
 void main(string[] args)
 {
