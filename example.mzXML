@@ -2,7 +2,7 @@
 <mzXML xmlns="http://sashimi.sourceforge.net/schema_revision/mzXML_3.2"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://sashimi.sourceforge.net/schema_revision/mzXML_3.2 http://sashimi.sourceforge.net/schema_revision/mzXML_3.2/mzXML_idx_3.2.xsd">
-  <msRun scanCount="7672" startTime="PT0.457129S" endTime="PT2700.22S">
+  <msRun scanCount="3" startTime="PT0.457129S" endTime="PT2700.22S">
     <parentFile fileName="file:///H:\190318_538_AlternariaII/12Conly_AA_MSMS_neg.raw"
                 fileType="RAWData"
                 fileSha1="3d3ccc213a66cdd51021b63c4702433cf2f0c566"/>
