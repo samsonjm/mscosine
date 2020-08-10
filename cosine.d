@@ -69,7 +69,10 @@ real calculate_cosine_score(real[] a, real[] b)
  */
 {
 	enforce(a.length == b.length, "The arrays must be of equal length.");
-	real cosine = find_numerator(a, b) / find_denominator(a, b);
+	real denominator = find_denominator(a, b);
+	enforce(denominator != 0, "Divide by 0 error, both arrays require " ~
+			"non-zero members.");
+	real cosine = find_numerator(a, b) / denominator;
 	return cosine;
 }
 unittest
@@ -77,16 +80,14 @@ unittest
 	real[] a = [3, -4];
 	real[] b = [3, -4];
 	assert(calculate_cosine_score(a, b) == 1);
-
 	b = [-3, 4];
 	assert(calculate_cosine_score(a, b) == -1);
-	
 	b = [4, 3];
 	assert(calculate_cosine_score(a, b) == 0);
-
 	assert(calculate_cosine_score(a, b) == 
 	       calculate_cosine_score(b, a));
-
 	b = [1, 2, 3];
+	assertThrown(calculate_cosine_score(a, b));
+	b = [0, 0];
 	assertThrown(calculate_cosine_score(a, b));
 }
