@@ -13,6 +13,7 @@ import std.math;
 import std.exception;
 import std.algorithm;
 import std.string;
+import std.regex;
 
 real[real] decode_mzxml_string(
 		string encoded, 
@@ -147,14 +148,33 @@ Scan[] parse_mzxml(string contents)
  */
 {
 	Scan[] scans;
-	string[] lines = splitLines(contents);
-	Scan my_scan = new Scan;
-	foreach(string line; lines)
+	auto scan_regex = ctRegex!(
+			`^\s*<scan num="(\d*)"(?:.*\n){3}\s*\w*="(\d)"(?:.*` ~
+			`\n){3}\s*\w*="\w{2}((?:\d|\.)*)\w"(?:.*\n)(?:\s*co` ~
+			`llisionEnergy=".*"\n)?(?:.*\n){5}(?:\s*<\w* \w*="(` ~
+			`\d*)".*)?\s*<peaks \w*="((?:\w)*)"(?:.*\n){2}\s*\w` ~
+			`*="(\d\d)"\n\s*\w*="(\w*)"\n\s*\w*=".*">(.*)<\/pea` ~
+			`ks>\n\s*<\/scan>`,
+			"m");
+	foreach(scan_read; contents.matchAll(scan_regex))
 	{
-		if (line[4..13] == "<scan num=")
-			my_scan = new Scan;
-		else if (line == "    </scan>")
-			scans ~= my_scan;
+		MS2Scan current_scan = new MS2Scan;
+		//current_scan.number = scan_read[1].to!uint;
+		current_scan.level = scan_read[2].to!uint;
+		if (scan_read[2] != "1")
+			current_scan.parent_scan = scans[
+				scan_read[4].to!ulong - 1];
+		current_scan.retention_time = scan_read[3].to!real;
+		string compression_type = scan_read[5];
+		int precision = scan_read[6].to!int;
+		//string byte_order = scan_read[7];
+		string encoded_read = scan_read[8];
+		current_scan.peaks = decode_mzxml_string(
+				encoded_read, 
+				compression_type, 
+				precision);
+		scans ~= current_scan;
+
 	}
 	return scans;
 }
@@ -162,9 +182,9 @@ unittest
 {
 	string scans = read_file("example.mzXML");
 	Scan[] parsed = parse_mzxml(scans);
-	assert(approxEqual(parsed[0].retention_time, 0.457129.to!real));
+	assert(approxEqual(parsed[0].retention_time, 0.457129));
 	assert(parsed[0].level == 1);
-	assert(approxEqual(parsed[2].retention_time, 674.132.to!real));
+	assert(approxEqual(parsed[2].retention_time, 647.132));
 	real[real] peaks = [
  		51.4678:        1460.7,
                 75.8275:        1671.72,
@@ -184,5 +204,7 @@ unittest
 	assert(approxEqual(parsed[2].peaks.values.sort,
 			    peaks.values.sort));
 	assert(parsed[2].level == 2);
-	assert(approxEqual(parsed[2].get_peak_intensity(171.153), 1760.86));
+	assert(approxEqual(parsed[2].get_peak_intensity(
+					parsed[2].peaks.keys.sort[8]), 
+				1678.81));
 }
