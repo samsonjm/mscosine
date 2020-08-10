@@ -141,8 +141,14 @@ MS2Scan[] parse_mzxml(string contents)
  *	contents - the contents of a .mzXML file.
  * Returns:
  *	scans - a list of Scan objects populated by contents.
+ *
+ * This parser uses a regex to detect scans and their attributes.  It 
+ * is entirely possible that differences in scan metadata could prevent
+ * some scans from being identified.  
  */
 {
+	auto scan_count_regex = ctRegex!(`^\s*<msRun scanCount="(\d*)"`, "m");
+	int scan_count = contents.matchFirst(scan_count_regex)[1].to!int;
 	MS2Scan[] scans;
 	auto scan_regex = ctRegex!(
 			`^\s*<scan num="(\d*)"(?:.*\n){3}\s*\w*="(\d)"(?:.*` ~
@@ -172,6 +178,8 @@ MS2Scan[] parse_mzxml(string contents)
 		scans ~= current_scan;
 
 	}
+	if (scan_count != scans.length)
+		writeln("Some scans were missed, regex needs to be changed.");
 	return scans;
 }
 unittest
