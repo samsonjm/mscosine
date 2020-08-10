@@ -1,4 +1,4 @@
-/* Tools to parse mzXML files into MS2Scan[].
+/* Tools to parse mzXML files into an MS2Scan[].
  * 
  * Author: Jonathan Samson
  * Date: 04-08-2020
@@ -15,17 +15,30 @@ import std.algorithm;
 import std.string;
 import std.regex;
 
+
 real[real] decode_mzxml_string(
 		string encoded, 
-		string compression="", 
+		string compression="none", 
 		int precision=32)
 {
+/* Decodes the mzXML string that represents the scan peaks.
+ * Arguments:
+ *	encoded - The encoded string.
+ *	compression - The type of compression (only zlib accepted).
+ *	precision - The precision used to encode the string.
+ * Returns:
+ *	peak_list - the m/z:intensity list of all peaks in the sacn.
+ */
 	ubyte[] decoded = Base64.decode(encoded);
 	real mz;
 	real intensity;
 	real[real] peak_list;
 	int byte_size = precision / 8;
 
+	enforce(compression == "none" || compression == "zlib",
+			"Invalid compression type.");
+	enforce(precision == 64 || precision == 32,
+			"Invalid compression type.");
 	if (compression=="zlib")
 	{
 		import std.zlib;
@@ -95,7 +108,7 @@ unittest
 		"AAECcQLugAAAAQF2cYSAAAABAmU9woAAAAEBgQs0AAAAAQOJRiqAAAABA" ~
 		"Yl7AoAAAAECaOz9AAAAAQGVk4qAAAABAm4NwYAAAAEBo5c+gAAAAQOFG3" ~
 		"YAAAABAbmV7wAAAAED6MI1AAAAAQG6FjuAAAABAwQaYAAAAAA==";
-	function_test = decode_mzxml_string(line, "", 64);
+	function_test = decode_mzxml_string(line, "none", 64);
 	assert(approxEqual(function_test.keys.sort, answer.keys.sort));
 	assert(approxEqual(function_test.values.sort, answer.values.sort));
 
@@ -106,6 +119,9 @@ unittest
 	function_test = decode_mzxml_string(line, "zlib", 64);
 	assert(approxEqual(function_test.keys.sort, answer.keys.sort));
 	assert(approxEqual(function_test.values.sort, answer.values.sort));
+
+	assertThrown(decode_mzxml_string(line, "7z", 64));
+	assertThrown(decode_mzxml_string(line, "none", 5));
 }
 
 string read_file(string name_of_file)
