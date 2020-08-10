@@ -147,10 +147,10 @@ MS2Scan[] parse_mzxml(string contents)
 	auto scan_regex = ctRegex!(
 			`^\s*<scan num="(\d*)"(?:.*\n){3}\s*\w*="(\d)"(?:.*` ~
 			`\n){3}\s*\w*="\w{2}((?:\d|\.)*)\w"(?:.*\n)(?:\s*co` ~
-			`llisionEnergy=".*"\n)?(?:.*\n){5}(?:\s*<\w* \w*="(` ~
-			`\d*)".*)?\s*<peaks \w*="((?:\w)*)"(?:.*\n){2}\s*\w` ~
-			`*="(\d\d)"\n\s*\w*="(\w*)"\n\s*\w*=".*">(.*)<\/pea` ~
-			`ks>\n\s*<\/scan>`,
+			`llisionEnergy=".*"\n)?(?:.*\n){5}(?:\s*msInstrumen` ~
+			`tID=".*">\n)?(?:\s*<\w* \w*="(\d*)".*)?\s*<peaks \` ~
+			`w*="((?:\w)*)"(?:.*\n){2}\s*\w*="(\d\d)"\n\s*\w*="` ~
+			`(\w*)"\n\s*\w*=".*">(.*)<\/peaks>\n\s*<\/scan>`,
 			"m");
 	foreach(scan_read; contents.matchAll(scan_regex))
 	{

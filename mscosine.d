@@ -262,6 +262,11 @@ void main(string[] args)
 	MS2Scan[] my_scans;
 	switch (input_file.matchFirst(file_extension)[1])
 	{
+		default:
+		{
+			throw new Exception("Invalid input file extension.");
+			return;
+		}
 		case "mgl": 
 		{
 			my_scans = mgf_parser(file_contents);
@@ -272,13 +277,7 @@ void main(string[] args)
 			my_scans = parse_mzxml(file_contents);
 			break;
 		}
-		default:
-		{
-			writeln("Invalid input file extension.");
-			return;
-		}
 	}
-
 	real[real] peak_list_1 = my_scans[scan_1_index].peaks;
 	real[real] peak_list_2 = my_scans[scan_2_index].peaks;
 
