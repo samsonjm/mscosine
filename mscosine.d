@@ -265,7 +265,6 @@ void main(string[] args)
 		default:
 		{
 			throw new Exception("Invalid input file extension.");
-			return;
 		}
 		case "mgl": 
 		{
