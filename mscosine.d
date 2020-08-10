@@ -11,6 +11,7 @@ import std.conv;
 import scans;
 import std.stdio;
 import std.getopt;
+import std.exception;
 import mzxmlparser;
 
 real[] combine_peak_lists(real[] mz1, real[] mz2)
@@ -247,8 +248,8 @@ void main(string[] args)
 	}
 	string file_contents = read_file(input_file);
 	MS2Scan[] my_scans = mgf_parser(file_contents);
-	real[real] peak_list_1 = my_scans[scan_1_index].get_peaks();
-	real[real] peak_list_2 = my_scans[scan_2_index].get_peaks();
+	real[real] peak_list_1 = my_scans[scan_1_index].peaks;
+	real[real] peak_list_2 = my_scans[scan_2_index].peaks;
 
 	real cosine_score = find_cosine_score(peak_list_1, peak_list_2);
 	writeln(cosine_score);

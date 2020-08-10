@@ -3,7 +3,7 @@
  * Author: Jonathan Samson
  * Date: 04-08-2020
  */
-module mzxmldecoder;
+module mzxmlparser;
 import std.bitmanip;
 import std.conv;
 import std.base64;
@@ -12,6 +12,7 @@ import std.stdio;
 import std.math;
 import std.exception;
 import std.algorithm;
+import std.string;
 
 real[real] decode_mzxml_string(
 		string encoded, 
@@ -147,7 +148,7 @@ Scan[] parse_mzxml(string contents)
 {
 	Scan[] scans;
 	string[] lines = splitLines(contents);
-	MS2Scan my_scan = new Scan;
+	Scan my_scan = new Scan;
 	foreach(string line; lines)
 	{
 		if (line[4..13] == "<scan num=")
@@ -161,9 +162,9 @@ unittest
 {
 	string scans = read_file("example.mzXML");
 	Scan[] parsed = parse_mzxml(scans);
-	assert(approxEqual(parsed[0].get_rt(), 0.457129.to!real));
-	assert(parsed[0].get_level() == 1);
-	assert(approxEqual(parsed[2].get_rt(), 674.132.to!real));
+	assert(approxEqual(parsed[0].retention_time, 0.457129.to!real));
+	assert(parsed[0].level == 1);
+	assert(approxEqual(parsed[2].retention_time, 674.132.to!real));
 	real[real] peaks = [
  		51.4678:        1460.7,
                 75.8275:        1671.72,
@@ -179,9 +180,9 @@ unittest
                 243.171:        107273,
                 244.174:        8717.19
 	];
-	assert(approxEqual(parsed[2].get_peaks().keys.sort, peaks.keys.sort));
-	assert(approxEqual(parsed[2].get_peaks().values.sort,
+	assert(approxEqual(parsed[2].peaks.keys.sort, peaks.keys.sort));
+	assert(approxEqual(parsed[2].peaks.values.sort,
 			    peaks.values.sort));
-	assert(parsed[2].get_level() == 2);
+	assert(parsed[2].level == 2);
 	assert(approxEqual(parsed[2].get_peak_intensity(171.153), 1760.86));
 }
