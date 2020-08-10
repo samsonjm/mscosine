@@ -1,4 +1,4 @@
-/* Tools to parse mzXML files into Scan[].
+/* Tools to parse mzXML files into MS2Scan[].
  * 
  * Author: Jonathan Samson
  * Date: 04-08-2020
@@ -134,12 +134,8 @@ string read_file(string name_of_file)
         }
         return file_contents;
 }
-unittest
-{
 
-}
-
-Scan[] parse_mzxml(string contents)
+MS2Scan[] parse_mzxml(string contents)
 /* Parses the contents of an .mzXML file into a list of Scan objects.
  * Arguments:
  *	contents - the contents of a .mzXML file.
@@ -147,7 +143,7 @@ Scan[] parse_mzxml(string contents)
  *	scans - a list of Scan objects populated by contents.
  */
 {
-	Scan[] scans;
+	MS2Scan[] scans;
 	auto scan_regex = ctRegex!(
 			`^\s*<scan num="(\d*)"(?:.*\n){3}\s*\w*="(\d)"(?:.*` ~
 			`\n){3}\s*\w*="\w{2}((?:\d|\.)*)\w"(?:.*\n)(?:\s*co` ~
@@ -181,7 +177,7 @@ Scan[] parse_mzxml(string contents)
 unittest
 {
 	string scans = read_file("example.mzXML");
-	Scan[] parsed = parse_mzxml(scans);
+	MS2Scan[] parsed = parse_mzxml(scans);
 	assert(approxEqual(parsed[0].retention_time, 0.457129));
 	assert(parsed[0].level == 1);
 	assert(approxEqual(parsed[2].retention_time, 647.132));

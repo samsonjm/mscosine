@@ -13,6 +13,7 @@ import std.stdio;
 import std.getopt;
 import std.exception;
 import mzxmlparser;
+import std.regex;
 
 real[] combine_peak_lists(real[] mz1, real[] mz2)
 /* Creates a combined list of peaks from the separate peak lists.
@@ -24,7 +25,9 @@ real[] combine_peak_lists(real[] mz1, real[] mz2)
  *	peak_list - The sorted combined list of mass/charge ratios.
  */
 {
-	real[] peak_list = mz1;
+	real[] peak_list;
+	foreach(peak; mz1)
+		peak_list ~= peak;
 	foreach(peak; mz2)
 		peak_list ~= peak;
 	peak_list.sort();
@@ -105,6 +108,12 @@ unittest
 		200.1: 15000.2,
 		300.1: 16000.3
 	];
+	real[real] scan1_original_peaks = [
+		100.1: 10000.100,
+		100.2: 500,
+		200.1: 15000.2,
+		300.1: 16000.3
+	];
 	real[real] scan2_peaks = [
 		100.1: 10000.1,
 		200.2: 15000.2,
@@ -124,6 +133,7 @@ unittest
 	];
 	assert(create_vectors(scan1_peaks, scan2_peaks, 0.1) == [
 		scan1_vector, scan2_vector]);
+	assert(scan1_peaks == scan1_original_peaks);
 }
 
 bool not_all_zeroes(real[] list)
@@ -234,7 +244,8 @@ void main(string[] args)
 
 	auto helpInformation = getopt(
 			args,
-			"input|i", "The input file in .mgl format", &input_file,
+			"input|i", "The input file in .mgl or .mzxml format", 
+			&input_file,
 			"scan1|1", "The first scan to compare", &scan_1_index,
 			"scan2|2", "The second scan to compare", &scan_2_index);
 	if(helpInformation.helpWanted)
@@ -247,7 +258,27 @@ void main(string[] args)
 		return;
 	}
 	string file_contents = read_file(input_file);
-	MS2Scan[] my_scans = mgf_parser(file_contents);
+	auto file_extension = ctRegex!(`\.(\w*)$`);
+	MS2Scan[] my_scans;
+	switch (input_file.matchFirst(file_extension)[1])
+	{
+		case "mgl": 
+		{
+			my_scans = mgf_parser(file_contents);
+			break;
+		}
+		case "mzXML":
+		{
+			my_scans = parse_mzxml(file_contents);
+			break;
+		}
+		default:
+		{
+			writeln("Invalid input file extension.");
+			return;
+		}
+	}
+
 	real[real] peak_list_1 = my_scans[scan_1_index].peaks;
 	real[real] peak_list_2 = my_scans[scan_2_index].peaks;
 
