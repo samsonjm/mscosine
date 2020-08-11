@@ -200,7 +200,7 @@ MS2Scan[] parse_mzxml(string contents)
 }
 unittest
 {
-	string scans = read_file("example.mzXML");
+	string scans = read_file("testfiles/example.mzXML");
 	MS2Scan[] parsed = parse_mzxml(scans);
 	assert(approxEqual(parsed[0].retention_time, 0.457129));
 	assert(parsed[0].level == 1);
@@ -222,8 +222,7 @@ unittest
 	];
 	assert(approxEqual(parsed[2].peaks.keys.sort, peaks.keys.sort));
 	assert(approxEqual(parsed[2].peaks.values.sort,
-			    peaks.values.sort));
-	assert(parsed[2].level == 2);
+			    peaks.values.sort)); assert(parsed[2].level == 2);
 	assert(approxEqual(parsed[2].get_peak_intensity(
 					parsed[2].peaks.keys.sort[8]), 
 				1678.81));
