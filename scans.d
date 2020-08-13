@@ -5,7 +5,7 @@
  */
 module scans;
 
-class File
+class mzXMLFile
 // Holds information relevant for an mzXML file, including a scan list.
 {
 	real start_time;
