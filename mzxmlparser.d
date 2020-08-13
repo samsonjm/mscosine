@@ -167,26 +167,33 @@ MSXScan[] parse_mzxml(string contents)
 	int scan_count = contents.matchFirst(scan_count_regex)[1].to!int;
 	MSXScan[] scans;
 	auto scan_regex = ctRegex!(
-			`^\s*<scan num="(\d*)"(?:.*\n){3}\s*\w*="(\d)"(?:.*` ~
-			`\n){3}\s*\w*="\w{2}((?:\d|\.)*)\w"(?:.*\n)(?:\s*co` ~
-			`llisionEnergy=".*"\n)?(?:.*\n){5}(?:\s*msInstrumen` ~
-			`tID=".*">\n)?(?:\s*<\w* \w*="(\d*)".*)?\s*<peaks \` ~
-			`w*="((?:\w)*)"(?:.*\n){2}\s*\w*="(\d\d)"\n\s*\w*="` ~
-			`(\w*)"\n\s*\w*=".*">(.*)<\/peaks>\n\s*<\/scan>`,
+			`^\s*<scan num="(\d*)"(?:.*\n){2}\s*centroided="(\d` ~
+			`)"(?:.*\n)\s*msLevel="(\d)"(?:.*\n){2}\s*polarity=` ~
+			`"(\-|\+)"(?:.*\n)\s*retentionTime="\w{2}((?:\d|\.)` ~
+			`*)\w*"(?:.*\n)(?:\s*collisionEnergy="(.*)"\n)?(?:.` ~
+			`*\n){5}(?:\s*msInstrumentID=".*">\n)?(?:\s*<\w* \w` ~
+			`*="(\d*)".*)?\s*<peaks \w*="((?:\w)*)"(?:.*\n){2}\` ~
+			`s*\w*="(\d\d)"\n\s*\w*="(\w*)"\n\s*\w*=".*">(.*)<\` ~
+			`/peaks>\n\s*<\/scan>`,
 			"m");
 	foreach(scan_read; contents.matchAll(scan_regex))
 	{
 		MSXScan current_scan = new MSXScan;
-		//current_scan.number = scan_read[1].to!uint;
-		current_scan.level = scan_read[2].to!uint;
-		if (scan_read[2] != "1")
+		current_scan.scan_number = scan_read[1].to!uint;
+		current_scan.centroided = scan_read[2].to!int;
+		current_scan.level = scan_read[3].to!uint;
+		current_scan.polarity = scan_read[4];
+		current_scan.retention_time = scan_read[5].to!real;
+		if (current_scan.level != 1)
+		{
+			current_scan.collision_energy = scan_read[6].to!float;
 			current_scan.parent_scan = scans[
-				scan_read[4].to!ulong - 1];
-		current_scan.retention_time = scan_read[3].to!real;
-		string compression_type = scan_read[5];
-		int precision = scan_read[6].to!int;
-		//string byte_order = scan_read[7];
-		string encoded_read = scan_read[8];
+				scan_read[7].to!ulong - 1];
+		}
+		string compression_type = scan_read[8];
+		int precision = scan_read[9].to!int;
+		//string byte_order = scan_read[10];
+		string encoded_read = scan_read[11];
 		current_scan.peaks = decode_mzxml_string(
 				encoded_read, 
 				compression_type, 
@@ -202,9 +209,16 @@ unittest
 {
 	string scans = read_file("testfiles/example.mzXML");
 	MSXScan[] parsed = parse_mzxml(scans);
-	assert(approxEqual(parsed[0].retention_time, 0.457129));
+	assert(parsed[0].scan_number == 1);
+	assert(parsed[0].centroided == 1);
 	assert(parsed[0].level == 1);
+	assert(parsed[0].polarity == "-");
+	assert(approxEqual(parsed[0].retention_time, 0.457129));
 	assert(approxEqual(parsed[2].retention_time, 647.132));
+	assert(parsed[0].collision_energy.isNaN);
+	assert(parsed[2].collision_energy == 35.0);
+	assert(parsed[0].parent_scan is null);
+	assert(parsed[2].parent_scan == parsed[1]);
 	real[real] peaks = [
  		51.4678:        1460.7,
                 75.8275:        1671.72,
@@ -226,4 +240,5 @@ unittest
 	assert(approxEqual(parsed[2].get_peak_intensity(
 					parsed[2].peaks.keys.sort[8]), 
 				1678.81));
+	assert(parsed[2].scan_number == 3);
 }

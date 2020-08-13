@@ -7,17 +7,17 @@ module scans;
 
 class Scan
 {
+	int scan_number;
+	int centroided;
+	uint level;
+	string polarity;
 	real retention_time;
 	real[real] peaks;
-	uint level;
 
 	/* Debating whether these variables are necessary:
 	string scanType;
 	bool centroided;
-	string polarity;
 	real total_ion_current;
-	string compression_type;
-	int precision;
 	*/
 
 	real get_peak_intensity(real my_peak)
@@ -73,17 +73,20 @@ unittest
 	peaks[56.12356] = 5235.12359;
 	assert(test.get_peak_intensity(56.12356) == 5235.12359);
 	assert(test.peaks == peaks);
+	test.polarity = "-";
+	assert(test.polarity == "-");
+	assert(test.polarity != "+");
+	test.scan_number = 1;
+	assert(test.scan_number == 1);
+	test.centroided = 1;
+	assert(test.centroided == 1);
 }
 
 class MSXScan : Scan
 {
 	Scan parent_scan;
 	real parent_peak;
-
-	this()
-	{
-		level = 2;
-	}
+	float collision_energy;
 
 	real get_parent_rt()
 	/* Gives the retention time from the parent scan for this MSX.
@@ -115,6 +118,7 @@ unittest
 		243.1713562: 107272.828125,
 		244.1736908: 8717.1875
 	];
+	test.level = 2;
 	assert(test.level == 2);
 	test.retention_time = 100.110;
 	assert(test.retention_time == 100.110);
@@ -130,4 +134,6 @@ unittest
 	assert(test.parent_scan == parent);
 	assert(test.parent_scan != notparent);
 	assert(test.get_parent_rt() == 600.100);
+	test.collision_energy = 35.0;
+	assert(test.collision_energy == 35.0);
 }
