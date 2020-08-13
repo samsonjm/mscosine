@@ -75,7 +75,7 @@ unittest
 	assert(test.peaks == peaks);
 }
 
-class MS2Scan : Scan
+class MSXScan : Scan
 {
 	Scan parent_scan;
 	real parent_peak;
@@ -86,7 +86,7 @@ class MS2Scan : Scan
 	}
 
 	real get_parent_rt()
-	/* Gives the retention time from the parent scan for this MS2.
+	/* Gives the retention time from the parent scan for this MSX.
 	 * Returns:
 	 *	this.parent_scan.get_rt() - The relevant parent rt.
 	 */
@@ -99,7 +99,7 @@ unittest
 	Scan parent = new Scan;
 	parent.retention_time = 600.100;
 	Scan notparent = new Scan;
-	MS2Scan test = new MS2Scan;
+	MSXScan test = new MSXScan;
 	real[real] peaks = [
 		51.46782684: 1460.6981201172,
 		75.82749939: 1671.7169189453,

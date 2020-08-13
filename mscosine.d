@@ -10,10 +10,10 @@ import std.string;
 import std.conv;
 import scans;
 import std.stdio;
-import std.getopt;
 import std.exception;
 import mzxmlparser;
 import std.regex;
+import std.getopt;
 
 real[] combine_peak_lists(real[] mz1, real[] mz2)
 /* Creates a combined list of peaks from the separate peak lists.
@@ -198,21 +198,21 @@ unittest
 	assertThrown(find_cosine_score(scan2, scan1));
 }
 
-MS2Scan[] mgf_parser(string contents)
-/* Parses the contents of a .mgf file into a list of MS2Scan objects.
+MSXScan[] mgf_parser(string contents)
+/* Parses the contents of a .mgf file into a list of MSXScan objects.
  * Arguments:
  *	contents - the contents of a .mgf file.
  * Returns:
- *	scans - a list of MS2Scan objects populated by contents.
+ *	scans - a list of MSXScan objects populated by contents.
  */
 {	
-	MS2Scan[] scans;
+	MSXScan[] scans;
 	string[] lines = splitLines(contents);
-	MS2Scan my_scan = new MS2Scan;
+	MSXScan my_scan = new MSXScan;
 	foreach(string line; lines)
 	{
 		if (line == "BEGIN IONS")
-			my_scan = new MS2Scan;
+			my_scan = new MSXScan;
 		else if (line == "END IONS")
 			scans ~= my_scan;
 		else if (line[0..1].isNumeric)
@@ -228,7 +228,7 @@ unittest
 {
 	string contents = 
 		"BEGIN IONS\nTITLE=12Conly_AA_MSMS_neg.1817.1817.1\nRTINSECONDS=647.13204\nPEPMASS=243.170868338055 253955.390625\nCHARGE=1-\n51.46782684 1460.6981201172\n75.82749939 1671.7169189453\n75.86730194 1605.3143310547\n100.1144104 1462.4990234375\n101.5387802 1490.517578125\n107.7608643 1808.1832275391\n118.443428 1619.8599853516\n130.0875244 37516.33203125\n146.9610138 1678.8117675781\n171.1526642 1760.8597412109\n199.1815948 35382.921875\n243.1713562 107272.828125\n244.1736908 8717.1875\nEND IONS\nBEGIN IONS\nTITLE=12Conly_AA_MSMS_neg.1825.1825.1\nRTINSECONDS=649.69068\nPEPMASS=243.170894922472 476078.830810500018\nCHARGE=1-\n94.02720642 1555.5870361328\n116.1556854 1499.4390869141\n129.1035614 3504.0708007813\n130.0875092 60504.5234375\n170.9055634 1636.6365966797\n199.1815796 54539.64453125\n200.1834564 1801.9443359375\n208.7902069 1524.8837890625\n213.2942657 2020.6203613281\n214.1232758 1974.2976074219\n243.171402 158421.265625\n244.1746063 11441.90625\nEND IONS";
-	MS2Scan[] my_scans = mgf_parser(contents);
+	MSXScan[] my_scans = mgf_parser(contents);
 	assert(my_scans.length == 2);
 	assert(my_scans[0].get_peak_intensity(101.5387802) == 
 			1490.517578125);
@@ -238,48 +238,48 @@ unittest
 
 void main(string[] args)
 {
-	string input_file;
-	int scan_1_index;
-	int scan_2_index;
+        string input_file;
+        int scan_1_index;
+        int scan_2_index;
 
-	auto helpInformation = getopt(
-			args,
-			"input|i", "The input file in .mgl or .mzxml format", 
-			&input_file,
-			"scan1|1", "The first scan to compare", &scan_1_index,
-			"scan2|2", "The second scan to compare", &scan_2_index);
-	if(helpInformation.helpWanted)
-	{
-		defaultGetoptFormatter(
-				stdout.lockingTextWriter(),
-				"Finds the cosine score between two scans.",
-				helpInformation.options,
-				"  %*s\t%*s%*s%s\n");
-		return;
-	}
-	string file_contents = read_file(input_file);
-	auto file_extension = ctRegex!(`\.(\w*)$`);
-	MS2Scan[] my_scans;
-	switch (input_file.matchFirst(file_extension)[1])
-	{
-		default:
-		{
-			throw new Exception("Invalid input file extension.");
-		}
-		case "mgl": 
-		{
-			my_scans = mgf_parser(file_contents);
-			break;
-		}
-		case "mzXML":
-		{
-			my_scans = parse_mzxml(file_contents);
-			break;
-		}
-	}
-	real[real] peak_list_1 = my_scans[scan_1_index].peaks;
-	real[real] peak_list_2 = my_scans[scan_2_index].peaks;
-
-	real cosine_score = find_cosine_score(peak_list_1, peak_list_2);
-	writeln(cosine_score);
+        auto helpInformation = getopt(
+                        args,
+                        "input|i", "The input file in .mgl or .mzxml format",
+                        &input_file,
+                        "scan1|1", "The first scan to compare", &scan_1_index,
+                        "scan2|2", "The second scan to compare", &scan_2_index);
+        if(helpInformation.helpWanted)
+        {
+                defaultGetoptFormatter(
+                                stdout.lockingTextWriter(),
+                                "Finds the cosine score between two scans.",
+                                helpInformation.options,
+                                "  %*s\t%*s%*s%s\n");
+                return;
+        }
+        string file_contents = read_file(input_file);
+        auto file_extension = ctRegex!(`\.(\w*)$`);
+        MSXScan[] my_scans;
+        switch (input_file.matchFirst(file_extension)[1])
+        {
+                default:
+                {
+                        throw new Exception("Invalid input file extension.");
+                }
+                case "mgl":
+                {
+                        my_scans = mgf_parser(file_contents);
+                        break;
+                }
+                case "mzXML":
+                {
+                        my_scans = parse_mzxml(file_contents);
+                        break;
+                }
+        }
+        real[real] peak_list_1 = my_scans[scan_1_index].peaks;
+        real[real] peak_list_2 = my_scans[scan_2_index].peaks;
+        real cosine_score = find_cosine_score(peak_list_1, peak_list_2);
+        writeln(cosine_score);
 }
+

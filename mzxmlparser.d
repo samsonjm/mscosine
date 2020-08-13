@@ -1,4 +1,4 @@
-/* Tools to parse mzXML files into an MS2Scan[].
+/* Tools to parse mzXML files into an MSXScan[].
  * 
  * Author: Jonathan Samson
  * Date: 04-08-2020
@@ -151,7 +151,7 @@ string read_file(string name_of_file)
         return file_contents;
 }
 
-MS2Scan[] parse_mzxml(string contents)
+MSXScan[] parse_mzxml(string contents)
 /* Parses the contents of an .mzXML file into a list of Scan objects.
  * Arguments:
  *	contents - the contents of a .mzXML file.
@@ -165,7 +165,7 @@ MS2Scan[] parse_mzxml(string contents)
 {
 	auto scan_count_regex = ctRegex!(`^\s*<msRun scanCount="(\d*)"`, "m");
 	int scan_count = contents.matchFirst(scan_count_regex)[1].to!int;
-	MS2Scan[] scans;
+	MSXScan[] scans;
 	auto scan_regex = ctRegex!(
 			`^\s*<scan num="(\d*)"(?:.*\n){3}\s*\w*="(\d)"(?:.*` ~
 			`\n){3}\s*\w*="\w{2}((?:\d|\.)*)\w"(?:.*\n)(?:\s*co` ~
@@ -176,7 +176,7 @@ MS2Scan[] parse_mzxml(string contents)
 			"m");
 	foreach(scan_read; contents.matchAll(scan_regex))
 	{
-		MS2Scan current_scan = new MS2Scan;
+		MSXScan current_scan = new MSXScan;
 		//current_scan.number = scan_read[1].to!uint;
 		current_scan.level = scan_read[2].to!uint;
 		if (scan_read[2] != "1")
@@ -201,7 +201,7 @@ MS2Scan[] parse_mzxml(string contents)
 unittest
 {
 	string scans = read_file("testfiles/example.mzXML");
-	MS2Scan[] parsed = parse_mzxml(scans);
+	MSXScan[] parsed = parse_mzxml(scans);
 	assert(approxEqual(parsed[0].retention_time, 0.457129));
 	assert(parsed[0].level == 1);
 	assert(approxEqual(parsed[2].retention_time, 647.132));
