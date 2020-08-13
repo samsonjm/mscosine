@@ -5,7 +5,19 @@
  */
 module scans;
 
+class File
+// Holds information relevant for an mzXML file, including a scan list.
+{
+	real start_time;
+	real end_time;
+	string[] parent_file;
+	string[] instrument_information;
+	string[] data_processing;
+	MSXScan[] scans;
+}
+
 class Scan
+// Holds information relevant for a MS1 scan.
 {
 	int scan_number;
 	int centroided;
@@ -16,7 +28,6 @@ class Scan
 
 	/* Debating whether these variables are necessary:
 	string scanType;
-	bool centroided;
 	real total_ion_current;
 	*/
 
