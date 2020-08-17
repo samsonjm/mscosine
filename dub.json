@@ -1,0 +1,24 @@
+{
+	"name": "mscosine",
+	"authors": [
+		"Jonathan Samson"
+	],
+	"copyright": "Copyright © 2020, Jonathan Samson",
+	"dependencies": {
+		"dxml": "~>0.4.3"
+	},
+	"description": "Calculates the cosine score between two scans from an mzXML file.",
+	"libs": [
+		"dxml"
+	],
+	"license": "GPL3",
+	"configurations": [
+		{
+			"name": "static",
+			"targetType": "executable",
+			"platforms": ["posix"],
+			"versions": ["MSCosineDefaultMain"],
+			"dflags": ["-static"]
+		}
+	]
+}
