@@ -9,11 +9,8 @@ import std.math;
 import std.string;
 import std.conv;
 import scans;
-import std.stdio;
 import std.exception;
 import mzxmlparser;
-import std.regex;
-import std.getopt;
 
 real[] combine_peak_lists(real[] mz1, real[] mz2)
 /* Creates a combined list of peaks from the separate peak lists.
@@ -235,51 +232,3 @@ unittest
 	assert(my_scans[1].get_peak_intensity(101.5387802) != 
 			1490.517578125);
 }
-
-void main(string[] args)
-{
-        string input_file;
-        int scan_1_index;
-        int scan_2_index;
-
-        auto helpInformation = getopt(
-                        args,
-                        "input|i", "The input file in .mgl or .mzxml format",
-                        &input_file,
-                        "scan1|1", "The first scan to compare", &scan_1_index,
-                        "scan2|2", "The second scan to compare", &scan_2_index);
-        if(helpInformation.helpWanted)
-        {
-                defaultGetoptFormatter(
-                                stdout.lockingTextWriter(),
-                                "Finds the cosine score between two scans.",
-                                helpInformation.options,
-                                "  %*s\t%*s%*s%s\n");
-                return;
-        }
-        string file_contents = read_file(input_file);
-        auto file_extension = ctRegex!(`\.(\w*)$`);
-        MSXScan[] my_scans;
-        switch (input_file.matchFirst(file_extension)[1])
-        {
-                default:
-                {
-                        throw new Exception("Invalid input file extension.");
-                }
-                case "mgl":
-                {
-                        my_scans = mgf_parser(file_contents);
-                        break;
-                }
-                case "mzXML":
-                {
-                        my_scans = parse_mzxml(file_contents);
-                        break;
-                }
-        }
-        real[real] peak_list_1 = my_scans[scan_1_index].peaks;
-        real[real] peak_list_2 = my_scans[scan_2_index].peaks;
-        real cosine_score = find_cosine_score(peak_list_1, peak_list_2);
-        writeln(cosine_score);
-}
-

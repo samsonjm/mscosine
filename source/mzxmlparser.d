@@ -14,6 +14,7 @@ import std.exception;
 import std.algorithm;
 import std.string;
 import std.regex;
+import dxml.parser;
 
 
 real[real] decode_mzxml_string(
@@ -34,7 +35,6 @@ real[real] decode_mzxml_string(
 	real intensity;
 	real[real] peak_list;
 	int byte_size = precision / 8;
-
 	enforce(compression == "none" || compression == "zlib",
 			"Invalid compression type.");
 	enforce(precision == 64 || precision == 32,
@@ -59,7 +59,6 @@ real[real] decode_mzxml_string(
 						     byte_size*i];
 			readable = bigEndianToNative!float(next_value);
 		}
-
 		if(i % 2 == 0)
 		{
 			intensity = readable.to!real;
@@ -95,14 +94,12 @@ unittest
 	real[real] function_test = decode_mzxml_string(line);
 	assert(approxEqual(function_test.keys.sort, answer.keys.sort));
 	assert(approxEqual(function_test.values.sort, answer.values.sort));
-
 	line = "eJwBaACX/0JN3w5EtpZXQpenrkTQ9vFCl7wPRMiqD0LIOpREts/4QssT20" ~
 		"S6UJBC14WQROIF3ULs4wlEynuFQwIWaEcSjFVDEvYFRNHZ+kMrJxVE3Bu" ~
 		"DQ0cufUcKNuxDcyveR9GEakN0LHdGCDTAJ+wubA==";
 	function_test = decode_mzxml_string(line, "zlib");
 	assert(approxEqual(function_test.keys.sort, answer.keys.sort));
 	assert(approxEqual(function_test.values.sort, answer.values.sort));
-
 	line = "QEm74cAAAABAltLK4AAAAEBS9PXAAAAAQJoe3iAAAABAUveB4AAAAECZFU" ~
 		"HgAAAAQFkHUoAAAABAltn/AAAAAEBZYntgAAAAQJdKEgAAAABAWvCyAAA" ~
 		"AAECcQLugAAAAQF2cYSAAAABAmU9woAAAAEBgQs0AAAAAQOJRiqAAAABA" ~
@@ -111,7 +108,6 @@ unittest
 	function_test = decode_mzxml_string(line, "none", 64);
 	assert(approxEqual(function_test.keys.sort, answer.keys.sort));
 	assert(approxEqual(function_test.values.sort, answer.values.sort));
-
 	line = "eJxz8Nz98AADA4PDtEunHoDooC9fwfxZcvcUwPzvjWDxmaKOYDqSPagBrP" ~
 		"7mfwYwP6k6AURP9xIC86M+bALTcxx2LwDRsXMSwebM9C8A8xOczoLlHwV" ~
 		"2gflJcQfA9CxrewcQnZryCMyf3VwANjfj6Xkw/6HbXbC9eanVYPf9MugF" ~
@@ -119,7 +115,6 @@ unittest
 	function_test = decode_mzxml_string(line, "zlib", 64);
 	assert(approxEqual(function_test.keys.sort, answer.keys.sort));
 	assert(approxEqual(function_test.values.sort, answer.values.sort));
-
 	assertThrown(decode_mzxml_string(line, "7z", 64));
 	assertThrown(decode_mzxml_string(line, "none", 5));
 }
@@ -158,51 +153,88 @@ MSXScan[] parse_mzxml(string contents)
  * Returns:
  *	scans - a list of Scan objects populated by contents.
  *
- * This parser uses a regex to detect scans and their attributes.  It 
- * is entirely possible that differences in scan metadata could prevent
- * some scans from being identified.  
+ * This parser uses dxml to parse the string.
  */
 {
-	auto scan_count_regex = ctRegex!(`^\s*<msRun scanCount="(\d*)"`, "m");
-	int scan_count = contents.matchFirst(scan_count_regex)[1].to!int;
+	auto range = parseXML(contents);
+	range.skipToPath("scan");
 	MSXScan[] scans;
-	auto scan_regex = ctRegex!(
-			`^\s*<scan num="(\d*)"(?:.*\n){2}\s*centroided="(\d` ~
-			`)"(?:.*\n)\s*msLevel="(\d)"(?:.*\n){2}\s*polarity=` ~
-			`"(\-|\+)"(?:.*\n)\s*retentionTime="\w{2}((?:\d|\.)` ~
-			`*)\w*"(?:.*\n)(?:\s*collisionEnergy="(.*)"\n)?(?:.` ~
-			`*\n){5}(?:\s*msInstrumentID=".*">\n)?(?:\s*<\w* \w` ~
-			`*="(\d*)".*)?\s*<peaks \w*="((?:\w)*)"(?:.*\n){2}\` ~
-			`s*\w*="(\d\d)"\n\s*\w*="(\w*)"\n\s*\w*=".*">(.*)<\` ~
-			`/peaks>\n\s*<\/scan>`,
-			"m");
-	foreach(scan_read; contents.matchAll(scan_regex))
+	MSXScan current_scan;
+	while(range.empty == false)
 	{
-		MSXScan current_scan = new MSXScan;
-		current_scan.scan_number = scan_read[1].to!uint;
-		current_scan.centroided = scan_read[2].to!int;
-		current_scan.level = scan_read[3].to!uint;
-		current_scan.polarity = scan_read[4];
-		current_scan.retention_time = scan_read[5].to!real;
-		if (current_scan.level != 1)
+		if (range.front.type == EntityType.elementStart)
 		{
-			current_scan.collision_energy = scan_read[6].to!float;
-			current_scan.parent_scan = scans[
-				scan_read[7].to!ulong - 1];
+			auto attr = range.front.attributes;
+			switch (range.front.name)
+			{
+				case "scan":
+				{
+					current_scan = new MSXScan;
+					string retention_time;
+					attr.getAttrs(
+							"num", 
+							&current_scan.scan_number,
+							"centroided", 
+							&current_scan.centroided,
+							"msLevel", 
+							&current_scan.level,
+							"polarity", 
+							&current_scan.polarity,
+							"retentionTime", 
+							&retention_time,
+							"collisionEnergy", 
+							&current_scan.collision_energy
+							);
+					current_scan.retention_time = 
+						retention_time[2..$-1].to!real;
+					break;
+				}
+				case "precursorMz":
+				{
+					int parent_scan;
+					attr.getAttrs(
+							"precursorScanNum", 
+							&parent_scan);
+					current_scan.parent_scan = 
+						scans[parent_scan-1];
+					break;
+				}
+				case "peaks":
+				{
+					string compression_type;
+					int precision;
+					//string byte_order;
+					attr.getAttrs(
+							"compressionType", 
+							&compression_type,
+							"precision", 
+							&precision,
+							//"byteOrder", 
+							//&byte_order;
+							);
+					range.popFront();
+					string encoded_read = range.front.text;
+					current_scan.peaks = 
+						decode_mzxml_string(
+							encoded_read,
+							compression_type,
+							precision);
+					break;
+				}
+				default:
+					break;
+			}
 		}
-		string compression_type = scan_read[8];
-		int precision = scan_read[9].to!int;
-		//string byte_order = scan_read[10];
-		string encoded_read = scan_read[11];
-		current_scan.peaks = decode_mzxml_string(
-				encoded_read, 
-				compression_type, 
-				precision);
-		scans ~= current_scan;
-
+		else if (range.front.type == EntityType.elementEnd)
+		{
+			string name  = range.front.name;
+			if (name == "scan")
+				scans ~= current_scan;	
+			else if (name == "msRun")
+				break;
+		}
+		range.popFront();
 	}
-	if (scan_count != scans.length)
-		writeln("Some scans were missed, regex needs to be changed.");
 	return scans;
 }
 unittest
