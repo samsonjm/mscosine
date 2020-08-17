@@ -47,8 +47,8 @@ void main(string[] args)
                         break;
                 }
         }
-        real[real] peak_list_1 = my_scans[scan_1_index].peaks;
-        real[real] peak_list_2 = my_scans[scan_2_index].peaks;
+        real[real] peak_list_1 = my_scans[scan_1_index-1].peaks;
+        real[real] peak_list_2 = my_scans[scan_2_index-1].peaks;
         real cosine_score = find_cosine_score(peak_list_1, peak_list_2);
         writeln(cosine_score);
 }
