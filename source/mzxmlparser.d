@@ -4,16 +4,14 @@
  * Date: 04-08-2020
  */
 module mzxmlparser;
+import scans;
 import std.bitmanip;
 import std.conv;
 import std.base64;
-import scans;
 import std.stdio;
 import std.math;
 import std.exception;
 import std.algorithm;
-import std.string;
-import std.regex;
 import dxml.parser;
 
 
