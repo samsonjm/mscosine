@@ -1,6 +1,5 @@
 import std.stdio;
 import scans;
-import cosine;
 import mscosine;
 import mzxmlparser;
 import std.getopt;
