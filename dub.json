@@ -19,6 +19,12 @@
 			"platforms": ["posix"],
 			"versions": ["MSCosineDefaultMain"],
 			"dflags": ["-static"]
+		},
+		{
+			"name": "library",
+			"targetType": "staticLibrary",
+			"platforms": ["posix"],
+			"versions": ["MSCosineDefaultLibrary"]
 		}
 	]
 }
