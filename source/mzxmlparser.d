@@ -36,7 +36,7 @@ real[real] decode_mzxml_string(
 	enforce(compression == "none" || compression == "zlib",
 			"Invalid compression type.");
 	enforce(precision == 64 || precision == 32,
-			"Invalid compression type.");
+			"Invalid precision.");
 	if (compression=="zlib")
 	{
 		import std.zlib;
@@ -126,22 +126,22 @@ string read_file(string name_of_file)
  *      file_contents - The contents of the file.
  */
 {
-        string file_contents = "";
-        try
+    string file_contents = "";
+    try
+    {
+        auto file = File(name_of_file, "r");
+        string line;
+        while ((line = file.readln()) !is null)
         {
-                auto file = File(name_of_file, "r");
-                string line;
-                while ((line = file.readln()) !is null)
-                {
-                        file_contents ~= line;
-                }
-                file.close();
+            file_contents ~= line;
         }
-        catch(ErrnoException e)
-        {
-                writeln("Invalid file name");
-        }
-        return file_contents;
+        file.close();
+    }
+    catch(ErrnoException e)
+    {
+        writeln("Invalid file name");
+    }
+    return file_contents;
 }
 
 MSXScan[] parse_mzxml(string contents)
@@ -250,25 +250,26 @@ unittest
 	assert(parsed[0].parent_scan is null);
 	assert(parsed[2].parent_scan == parsed[1]);
 	real[real] peaks = [
- 		51.4678:        1460.7,
-                75.8275:        1671.72,
-                75.8673:        1605.31,
-                100.114:        1462.5,
-                101.539:        1490.52,
-                107.761:        1808.18,
-                118.443:        1619.86,
-                130.088:        37516.3,
-                146.961:        1678.81,
-                171.153:        1760.86,
-                199.182:        35382.9,
-                243.171:        107273,
-                244.174:        8717.19
+ 		51.4678:    1460.7,
+        75.8275:    1671.72,
+        75.8673:    1605.31,
+        100.114:    1462.5,
+        101.539:    1490.52,
+        107.761:    1808.18,
+        118.443:    1619.86,
+        130.088:    37516.3,
+        146.961:    1678.81,
+        171.153:    1760.86,
+        199.182:    35382.9,
+        243.171:    107273,
+        244.174:    8717.19
 	];
 	assert(approxEqual(parsed[2].peaks.keys.sort, peaks.keys.sort));
-	assert(approxEqual(parsed[2].peaks.values.sort,
-			    peaks.values.sort)); assert(parsed[2].level == 2);
+	assert(approxEqual(parsed[2].peaks.values.sort, 
+				peaks.values.sort)); assert(parsed[2].level == 2);
 	assert(approxEqual(parsed[2].get_peak_intensity(
-					parsed[2].peaks.keys.sort[8]), 
+					parsed[2].peaks.keys.sort[8]
+					), 
 				1678.81));
 	assert(parsed[2].scan_number == 3);
 }
