@@ -1,3 +1,5 @@
+.dub/
+libmscosine.a
 *.o
 cosine
 mscosine
