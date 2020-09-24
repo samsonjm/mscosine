@@ -10,12 +10,15 @@ void main(string[] args)
 	string input_file;
     int scan_1_index;
     int scan_2_index;
+	real threshold = 0.0001;
     auto helpInformation = getopt(
                 args,
                 "input|i", "The input file in .mgl or .mzxml format",
                 &input_file,
                 "scan1|1", "The first scan to compare", &scan_1_index,
-                "scan2|2", "The second scan to compare", &scan_2_index);
+                "scan2|2", "The second scan to compare", &scan_2_index,
+				"threshold|t", "The cutoff for two peaks to be considered equal",
+				&threshold);
     if(helpInformation.helpWanted)
     {
         defaultGetoptFormatter(
@@ -47,6 +50,6 @@ void main(string[] args)
     }
     real[real] peak_list_1 = my_scans[scan_1_index-1].peaks;
     real[real] peak_list_2 = my_scans[scan_2_index-1].peaks;
-    real cosine_score = find_cosine_score(peak_list_1, peak_list_2);
+    real cosine_score = find_cosine_score(peak_list_1, peak_list_2, threshold);
     writeln(cosine_score);
 }
