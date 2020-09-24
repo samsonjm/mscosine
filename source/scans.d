@@ -6,7 +6,8 @@
 module scans;
 
 class mzXMLFile
-// Holds information relevant for an mzXML file, including a scan list.
+/// Holds information relevant for an mzXML file, including a scan list.
+/// Not fully implemented.
 {
 	real start_time;
 	real end_time;
@@ -16,8 +17,8 @@ class mzXMLFile
 	MSXScan[] scans;
 }
 
+/// Holds information relevant for a MS1 scan.
 class Scan
-// Holds information relevant for a MS1 scan.
 {
 	int scan_number;
 	int centroided;
@@ -93,6 +94,7 @@ unittest
 	assert(test.centroided == 1);
 }
 
+/// A Scan that includes parent data and collision energy.
 class MSXScan : Scan
 {
 	Scan parent_scan;

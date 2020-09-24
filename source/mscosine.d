@@ -247,7 +247,7 @@ unittest
 real find_cosine_score(
 		real[real] first_scan, 
 		real[real] second_scan, 
-		real threshold=0.01)
+		real threshold=0.0001)
 /* Calculates the cosine score between the two scans.
  * Arguments:
  *	first_scan - scan with mz:intensity.
