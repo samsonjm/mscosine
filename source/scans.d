@@ -100,6 +100,7 @@ class MSXScan : Scan
 	Scan parent_scan;
 	real parent_peak;
 	float collision_energy;
+	real base_peak_mz;
 
 	real get_parent_rt()
 	/* Gives the retention time from the parent scan for this MSX.
@@ -149,4 +150,6 @@ unittest
 	assert(test.get_parent_rt() == 600.100);
 	test.collision_energy = 35.0;
 	assert(test.collision_energy == 35.0);
+	test.base_peak_mz = 244.1736908;
+	assert(test.base_peak_mz = 244.1736908);
 }

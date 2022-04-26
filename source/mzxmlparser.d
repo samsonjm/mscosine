@@ -14,7 +14,6 @@ import std.exception;
 import std.algorithm;
 import dxml.parser;
 
-
 real[real] decode_mzxml_string(
 		string encoded, 
 		string compression="none", 
@@ -181,7 +180,9 @@ MSXScan[] parse_mzxml(string contents)
 							"retentionTime", 
 							&retention_time,
 							"collisionEnergy", 
-							&current_scan.collision_energy
+							&current_scan.collision_energy,
+							"basePeakMz",
+							&current_scan.base_peak_mz
 							);
 					current_scan.retention_time = 
 						retention_time[2..$-1].to!real;
